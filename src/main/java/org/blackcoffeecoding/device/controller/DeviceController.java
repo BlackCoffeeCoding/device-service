@@ -41,8 +41,15 @@ public class DeviceController implements DeviceApi {
     }
 
     @Override
-    public DeviceResponse createDevice(DeviceRequest request) {
-        // Тут пока оставим как есть, или тоже можно обернуть в EntityModel, но контракт требует DeviceResponse
-        return deviceService.createDevice(request);
+    public EntityModel<DeviceResponse> createDevice(DeviceRequest request) {
+        // Создаем через сервис
+        DeviceResponse createdDevice = deviceService.createDevice(request);
+        // Оборачиваем в HATEOAS-модель через ассемблер (теперь ссылки будут и при создании!)
+        return deviceModelAssembler.toModel(createdDevice);
+    }
+
+    @Override
+    public void deleteDevice(Long id) {
+        deviceService.deleteDevice(id);
     }
 }

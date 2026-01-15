@@ -38,7 +38,13 @@ public class CompanyController implements CompanyApi {
     }
 
     @Override
-    public CompanyResponse createCompany(CompanyRequest request) {
-        return companyService.create(request);
+    public EntityModel<CompanyResponse> createCompany(CompanyRequest request) {
+        CompanyResponse createdCompany = companyService.create(request);
+        return assembler.toModel(createdCompany);
+    }
+
+    @Override
+    public void deleteCompany(Long id) {
+        companyService.delete(id);
     }
 }

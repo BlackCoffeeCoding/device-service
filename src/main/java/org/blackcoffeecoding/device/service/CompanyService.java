@@ -55,4 +55,12 @@ public class CompanyService {
         companies.add(newCompany);
         return newCompany;
     }
+
+    public void delete(Long id) {
+        boolean removed = companies.removeIf(c -> c.getId().equals(id));
+
+        if (!removed) {
+            throw new ResourceNotFoundException("Компания", id);
+        }
+    }
 }

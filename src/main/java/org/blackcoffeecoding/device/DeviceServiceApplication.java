@@ -6,7 +6,10 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.hateoas.config.EnableHypermediaSupport;
 import org.springframework.hateoas.config.EnableHypermediaSupport.HypermediaType;
 
-@SpringBootApplication(exclude = {DataSourceAutoConfiguration.class}) // Отключаем БД
+@SpringBootApplication(
+        scanBasePackages = {"org.blackcoffeecoding.device"},
+        exclude = {DataSourceAutoConfiguration.class}
+)
 @EnableHypermediaSupport(type = HypermediaType.HAL) // Включаем режим ссылок
 public class DeviceServiceApplication {
 
