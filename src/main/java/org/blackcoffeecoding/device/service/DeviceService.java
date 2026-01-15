@@ -3,7 +3,11 @@ package org.blackcoffeecoding.device.service;
 import org.blackcoffeecoding.device.api.dto.CompanyResponse;
 import org.blackcoffeecoding.device.api.dto.DeviceRequest;
 import org.blackcoffeecoding.device.api.dto.DeviceResponse;
+import org.blackcoffeecoding.device.api.exception.ResourceAlreadyExistsException; // <-- Новый импорт
 import org.blackcoffeecoding.device.api.exception.ResourceNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,43 +15,45 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Service // Говорим Спрингу, что это сервисный слой [cite: 206]
+@Service
 public class DeviceService {
 
-    // Имитация базы данных в памяти
     private final List<DeviceResponse> devices = new ArrayList<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     public DeviceService() {
-        // Добавим одно тестовое устройство сразу, чтобы было что получать
-        devices.add(new DeviceResponse(
-                idGenerator.getAndIncrement(),
-                "Samsung Galaxy S24",
-                "SN-SAMSUNG-001",
-                LocalDate.of(2024, 1, 17),
-                new CompanyResponse(1L, "Samsung", "SMSNG")
-        ));
+        // Данные для тестов
+        for (int i = 1; i <= 5; i++) {
+            devices.add(new DeviceResponse(idGenerator.getAndIncrement(), "Device " + i, "SN-" + i, LocalDate.now(), new CompanyResponse(1L, "Samsung", "SMSNG")));
+        }
     }
 
     public DeviceResponse getDeviceById(Long id) {
-        // Ищем устройство в списке. Если нет - кидаем ошибку из нашего КОНТРАКТА
         return devices.stream()
-                .filter(d -> d.id().equals(id))
+                .filter(d -> d.getId().equals(id))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Device", id));
     }
 
+    public Page<DeviceResponse> findAll(int page, int size) {
+        int start = Math.min((int)PageRequest.of(page, size).getOffset(), devices.size());
+        int end = Math.min((start + size), devices.size());
+        return new PageImpl<>(devices.subList(start, end), PageRequest.of(page, size), devices.size());
+    }
+
     public DeviceResponse createDevice(DeviceRequest request) {
-        // Создаем новое устройство на основе запроса
+        // Проверка на дубликат Серийного номера
+        if (devices.stream().anyMatch(d -> d.getSerialNumber().equals(request.serialNumber()))) {
+            throw new ResourceAlreadyExistsException("Устройство", "серийным номером", request.serialNumber());
+        }
+
         DeviceResponse newDevice = new DeviceResponse(
                 idGenerator.getAndIncrement(),
                 request.name(),
                 request.serialNumber(),
                 request.releaseDate() != null ? request.releaseDate() : LocalDate.now(),
-                // В реальности мы бы искали компанию в БД по ID, но пока сделаем заглушку
                 new CompanyResponse(request.companyId(), "Test Company", "TST")
         );
-
         devices.add(newDevice);
         return newDevice;
     }

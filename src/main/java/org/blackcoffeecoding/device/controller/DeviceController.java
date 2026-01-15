@@ -3,30 +3,46 @@ package org.blackcoffeecoding.device.controller;
 import org.blackcoffeecoding.device.api.dto.DeviceRequest;
 import org.blackcoffeecoding.device.api.dto.DeviceResponse;
 import org.blackcoffeecoding.device.api.endpoints.DeviceApi;
+import org.blackcoffeecoding.device.assemblers.DeviceModelAssembler;
 import org.blackcoffeecoding.device.service.DeviceService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController // Обрабатывает HTTP запросы [cite: 200]
+@RestController
 public class DeviceController implements DeviceApi {
 
     private final DeviceService deviceService;
+    private final DeviceModelAssembler deviceModelAssembler;
+    private final PagedResourcesAssembler<DeviceResponse> pagedResourcesAssembler;
 
-    // Внедряем сервис через конструктор [cite: 215]
-    @Autowired
-    public DeviceController(DeviceService deviceService) {
+    public DeviceController(DeviceService deviceService,
+                            DeviceModelAssembler deviceModelAssembler,
+                            PagedResourcesAssembler<DeviceResponse> pagedResourcesAssembler) {
         this.deviceService = deviceService;
+        this.deviceModelAssembler = deviceModelAssembler;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @Override
-    public DeviceResponse getDevice(Long id) {
-        // Просто делегируем работу сервису
-        return deviceService.getDeviceById(id);
+    public EntityModel<DeviceResponse> getDevice(Long id) {
+        DeviceResponse device = deviceService.getDeviceById(id);
+        // Ассемблер сам добавит ссылки
+        return deviceModelAssembler.toModel(device);
+    }
+
+    @Override
+    public PagedModel<EntityModel<DeviceResponse>> getAllDevices(int page, int size) {
+        Page<DeviceResponse> devicesPage = deviceService.findAll(page, size);
+        // Магия HATEOAS: превращает страницу данных в JSON со ссылками "next", "prev", "first", "last"
+        return pagedResourcesAssembler.toModel(devicesPage, deviceModelAssembler);
     }
 
     @Override
     public DeviceResponse createDevice(DeviceRequest request) {
-        // Просто делегируем работу сервису
+        // Тут пока оставим как есть, или тоже можно обернуть в EntityModel, но контракт требует DeviceResponse
         return deviceService.createDevice(request);
     }
 }
