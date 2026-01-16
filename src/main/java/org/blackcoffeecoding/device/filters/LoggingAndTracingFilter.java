@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.UUID;
 
 @Component
-@Order(1) // Сработает первым [cite: 526]
+@Order(1)
 public class LoggingAndTracingFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingAndTracingFilter.class);
@@ -28,18 +28,17 @@ public class LoggingAndTracingFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        // 1. Управление Correlation ID
         String correlationId = request.getHeader(CORRELATION_ID_HEADER);
         if (!StringUtils.hasText(correlationId)) {
-            correlationId = UUID.randomUUID().toString(); // Генерируем новый, если нет [cite: 530]
+            correlationId = UUID.randomUUID().toString();
         }
 
-        // Кладем в MDC (контекст логирования) [cite: 531]
+
         MDC.put(CORRELATION_ID_MDC_KEY, correlationId);
-        // Добавляем в ответ клиенту, чтобы он тоже знал ID [cite: 532]
+
         response.setHeader(CORRELATION_ID_HEADER, correlationId);
 
-        // Задание 2: Логируем только запросы к API [cite: 564]
+
         boolean isApiRequest = request.getRequestURI().startsWith("/api/");
 
         long startTime = System.currentTimeMillis();
@@ -49,11 +48,11 @@ public class LoggingAndTracingFilter implements Filter {
                 log.info("Request started: {} {}", request.getMethod(), request.getRequestURI());
             }
 
-            // Передаем управление дальше (другим фильтрам и контроллеру)
+
             filterChain.doFilter(request, response);
 
         } finally {
-            // Этот блок выполнится ПОСЛЕ отработки контроллера
+
             long duration = System.currentTimeMillis() - startTime;
 
             if (isApiRequest) {
@@ -61,7 +60,7 @@ public class LoggingAndTracingFilter implements Filter {
                         request.getMethod(), request.getRequestURI(), response.getStatus(), duration);
             }
 
-            // Критически важно очистить MDC! [cite: 537]
+
             MDC.remove(CORRELATION_ID_MDC_KEY);
         }
     }

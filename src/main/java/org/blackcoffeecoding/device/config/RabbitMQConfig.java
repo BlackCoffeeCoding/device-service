@@ -18,13 +18,11 @@ public class RabbitMQConfig {
 
     @Bean
     public TopicExchange devicesExchange() {
-        // durable=true (true, false) означает, что обменник переживет перезагрузку RabbitMQ [cite: 833-834]
         return new TopicExchange(EXCHANGE_NAME, true, false);
     }
 
     @Bean
     public Jackson2JsonMessageConverter messageConverter() {
-        // Используем Jackson для красивого JSON
         return new Jackson2JsonMessageConverter(new ObjectMapper().findAndRegisterModules());
     }
 
@@ -33,7 +31,6 @@ public class RabbitMQConfig {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(messageConverter);
 
-        // Callback: Сработает, когда брокер подтвердит (или отвергнет) получение сообщения [cite: 844-849]
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
             if (!ack) {
                 System.err.println("NACK: Сообщение не доставлено брокеру! Причина: " + cause);

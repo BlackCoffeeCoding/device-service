@@ -36,7 +36,7 @@ public class DeviceDataFetcher {
                 (String) input.get("name"),
                 (String) input.get("serialNumber"),
                 (String) input.get("category"),
-                LocalDate.now(), // Упрощаем дату для теста
+                LocalDate.now(),
                 Long.parseLong(input.get("companyId").toString())
         );
         return deviceService.createDevice(request);
@@ -51,6 +51,6 @@ public class DeviceDataFetcher {
     @DgsMutation
     public Long deleteDevice(@InputArgument Long id) {
         deviceService.deleteDevice(id);
-        return id; // Возвращаем ID удаленного объекта, как принято в GraphQL
+        return id;
     }
 }

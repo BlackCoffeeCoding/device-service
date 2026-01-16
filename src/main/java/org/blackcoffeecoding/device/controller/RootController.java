@@ -21,14 +21,10 @@ public class RootController {
     public RepresentationModel<?> getRoot() {
         RepresentationModel<?> rootModel = new RepresentationModel<>();
 
-        // Ссылка на устройства
         rootModel.add(linkTo(methodOn(DeviceController.class).getAllDevices(0, 10)).withRel("devices"));
 
-        // Ссылка на компании
         rootModel.add(linkTo(methodOn(CompanyController.class).getAllCompanies(0, 10)).withRel("companies"));
 
-        // Задание 1: Ссылка на документацию Swagger [cite: 561-562]
-        // Мы используем Link.of, так как Swagger UI это статический путь, а не метод контроллера
         rootModel.add(Link.of("http://localhost:8080/swagger-ui/index.html").withRel("documentation"));
 
         return rootModel;

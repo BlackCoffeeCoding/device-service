@@ -14,9 +14,7 @@ public class DeviceModelAssembler implements RepresentationModelAssembler<Device
     @Override
     public EntityModel<DeviceResponse> toModel(DeviceResponse device) {
         return EntityModel.of(device,
-                // Ссылка на самого себя (self)
                 linkTo(methodOn(DeviceController.class).getDevice(device.getId())).withSelfRel(),
-                // Ссылка на коллекцию всех устройств
                 linkTo(methodOn(DeviceController.class).getAllDevices(0, 10)).withRel("devices")
         );
     }

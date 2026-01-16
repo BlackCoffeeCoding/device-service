@@ -19,7 +19,6 @@ public class CompanyDataFetcher {
 
     @DgsQuery
     public List<CompanyResponse> companies() {
-        // Для простоты возвращаем все (без пагинации в этом методе, как в примере)
         return companyService.findAll(0, 100).getContent();
     }
 

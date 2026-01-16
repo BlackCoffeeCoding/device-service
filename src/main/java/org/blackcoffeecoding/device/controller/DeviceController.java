@@ -36,7 +36,6 @@ public class DeviceController implements DeviceApi {
     @Override
     public PagedModel<EntityModel<DeviceResponse>> getAllDevices(int page, int size) {
         Page<DeviceResponse> devicesPage = deviceService.findAll(page, size);
-        // Магия HATEOAS: превращает страницу данных в JSON со ссылками "next", "prev", "first", "last"
         return pagedResourcesAssembler.toModel(devicesPage, deviceModelAssembler);
     }
 
@@ -44,7 +43,6 @@ public class DeviceController implements DeviceApi {
     public EntityModel<DeviceResponse> createDevice(DeviceRequest request) {
         // Создаем через сервис
         DeviceResponse createdDevice = deviceService.createDevice(request);
-        // Оборачиваем в HATEOAS-модель через ассемблер (теперь ссылки будут и при создании!)
         return deviceModelAssembler.toModel(createdDevice);
     }
 

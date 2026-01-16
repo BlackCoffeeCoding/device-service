@@ -9,13 +9,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// Задание 3: Фильтр измерения производительности [cite: 566]
+
 @Component
-@Order(2) // Выполняется ПОСЛЕ LoggingAndTracingFilter
+@Order(2)
 public class PerformanceWarningFilter implements Filter {
 
     private static final Logger log = LoggerFactory.getLogger(PerformanceWarningFilter.class);
-    private static final long THRESHOLD_MS = 20; // Порог в 20мс [cite: 569]
+    private static final long THRESHOLD_MS = 20;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -28,7 +28,7 @@ public class PerformanceWarningFilter implements Filter {
         } finally {
             long duration = System.currentTimeMillis() - start;
 
-            // Если дольше порога - пишем WARN
+
             if (duration > THRESHOLD_MS) {
                 log.warn("Slow request detected: {} {} took {}ms",
                         request.getMethod(), request.getRequestURI(), duration);

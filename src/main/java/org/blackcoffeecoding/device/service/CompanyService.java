@@ -38,11 +38,10 @@ public class CompanyService {
     }
 
     public CompanyResponse create(CompanyRequest request) {
-        // Проверка на дубликат Имени
         if (companies.stream().anyMatch(c -> c.getName().equalsIgnoreCase(request.name()))) {
             throw new ResourceAlreadyExistsException("Компания", "названием", request.name());
         }
-        // Проверка на дубликат Аббревиатуры
+
         if (companies.stream().anyMatch(c -> c.getAbbreviation().equalsIgnoreCase(request.abbreviation()))) {
             throw new ResourceAlreadyExistsException("Компания", "аббревиатурой", request.abbreviation());
         }
