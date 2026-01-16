@@ -1,6 +1,7 @@
 package org.blackcoffeecoding.device.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -13,6 +14,7 @@ public class RabbitMQConfig {
     public static final String EXCHANGE_NAME = "devices-exchange";
     public static final String ROUTING_KEY_CREATED = "device.created";
     public static final String ROUTING_KEY_DELETED = "device.deleted";
+    public static final String FANOUT_EXCHANGE = "analytics-fanout";
 
     @Bean
     public TopicExchange devicesExchange() {
@@ -39,5 +41,11 @@ public class RabbitMQConfig {
         });
 
         return rabbitTemplate;
+    }
+
+    @Bean
+    public FanoutExchange analyticsExchange() {
+        // Fanout рассылает всем, игнорируя routing key
+        return new FanoutExchange(FANOUT_EXCHANGE, true, false);
     }
 }

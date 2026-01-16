@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+// Пакет для сгенерированных классов
+option java_package = "org.blackcoffeecoding.grpc";
+option java_outer_classname = "AnalyticsServiceProto";
+
+service AnalyticsService {
+  // Метод расчета рейтинга устройства
+  rpc CalculateDeviceRating (DeviceRatingRequest) returns (DeviceRatingResponse) {}
+}
+
+message DeviceRatingRequest {
+  int64 device_id = 1;
+  string category = 2;
+}
+
+message DeviceRatingResponse {
+  int64 device_id = 1;
+  int32 rating_score = 2;
+  string verdict = 3;
+}
