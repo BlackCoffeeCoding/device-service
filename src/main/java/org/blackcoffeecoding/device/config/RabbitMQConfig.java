@@ -3,8 +3,6 @@ package org.blackcoffeecoding.device.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.FanoutExchange;
 import org.springframework.amqp.core.TopicExchange;
-import org.springframework.amqp.rabbit.connection.ConnectionFactory;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,22 +25,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, Jackson2JsonMessageConverter messageConverter) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(messageConverter);
-
-        rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
-            if (!ack) {
-                System.err.println("NACK: Сообщение не доставлено брокеру! Причина: " + cause);
-            }
-        });
-
-        return rabbitTemplate;
-    }
-
-    @Bean
     public FanoutExchange analyticsExchange() {
-        // Fanout рассылает всем, игнорируя routing key
         return new FanoutExchange(FANOUT_EXCHANGE, true, false);
     }
 }

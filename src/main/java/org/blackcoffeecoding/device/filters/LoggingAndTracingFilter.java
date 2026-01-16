@@ -13,7 +13,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.UUID;
 
-@Component
+//@Component
 @Order(1)
 public class LoggingAndTracingFilter implements Filter {
 
