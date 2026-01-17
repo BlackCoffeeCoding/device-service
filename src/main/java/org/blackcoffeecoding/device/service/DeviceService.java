@@ -27,10 +27,11 @@ public class DeviceService {
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     private final RabbitTemplate rabbitTemplate;
+    private final CompanyService companyService;
 
-    public DeviceService(RabbitTemplate rabbitTemplate) {
+    public DeviceService(RabbitTemplate rabbitTemplate, CompanyService companyService) {
         this.rabbitTemplate = rabbitTemplate;
-
+        this.companyService = companyService;
         devices.add(new DeviceResponse(idGenerator.getAndIncrement(), "Samsung Galaxy S24", "SN-1", "Smartphone", LocalDate.now(), new CompanyResponse(1L, "Samsung", "SMSNG")));
         devices.add(new DeviceResponse(idGenerator.getAndIncrement(), "iPad Pro", "SN-2", "Tablet", LocalDate.now(), new CompanyResponse(2L, "Apple", "AAPL")));
         devices.add(new DeviceResponse(idGenerator.getAndIncrement(), "Google Pixel 8", "SN-3", "Smartphone", LocalDate.now(), new CompanyResponse(3L, "Google", "GOOG")));
@@ -72,13 +73,16 @@ public class DeviceService {
             throw new ResourceAlreadyExistsException("Устройство", "серийным номером", request.serialNumber());
         }
 
+        CompanyResponse company = companyService.getById(request.companyId());
+
         DeviceResponse newDevice = new DeviceResponse(
                 idGenerator.getAndIncrement(),
                 request.name(),
                 request.serialNumber(),
                 request.category(),
                 request.releaseDate() != null ? request.releaseDate() : LocalDate.now(),
-                new CompanyResponse(request.companyId(), "Test Company", "TST")
+                company
+                //new CompanyResponse(request.companyId(), "Test Company", "TST")
         );
 
         devices.add(newDevice);

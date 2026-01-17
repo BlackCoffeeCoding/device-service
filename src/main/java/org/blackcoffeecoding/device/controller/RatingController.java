@@ -1,8 +1,10 @@
 package org.blackcoffeecoding.device.controller;
 
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.blackcoffeecoding.device.api.dto.DeviceResponse;
 import org.blackcoffeecoding.device.config.RabbitMQConfig;
 import org.blackcoffeecoding.device.events.DeviceRatedEvent;
+import org.blackcoffeecoding.device.service.DeviceService;
 import org.blackcoffeecoding.grpc.AnalyticsServiceGrpc;
 import org.blackcoffeecoding.grpc.DeviceRatingRequest;
 import org.blackcoffeecoding.grpc.DeviceRatingResponse;
@@ -20,17 +22,20 @@ public class RatingController {
     private AnalyticsServiceGrpc.AnalyticsServiceBlockingStub analyticsStub;
 
     private final RabbitTemplate rabbitTemplate;
+    private final DeviceService deviceService;
 
-    public RatingController(RabbitTemplate rabbitTemplate) {
+    public RatingController(RabbitTemplate rabbitTemplate, DeviceService deviceService) {
         this.rabbitTemplate = rabbitTemplate;
+        this.deviceService = deviceService;
     }
 
     @PostMapping("/{id}/rate")
     public String rateDevice(@PathVariable Long id) {
         try {
+            DeviceResponse device = deviceService.getDeviceById(id);
             DeviceRatingRequest request = DeviceRatingRequest.newBuilder()
                     .setDeviceId(id)
-                    .setCategory("Smartphone") // Можно брать из БД
+                    .setCategory(device.getCategory()) // Можно брать из БД
                     .build();
 
             DeviceRatingResponse response = analyticsStub.calculateDeviceRating(request);
